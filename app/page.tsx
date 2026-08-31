@@ -384,8 +384,15 @@ Thank you.`;
                 🛒 Cart ({cart.length})
               </button>
             </div>
-          </div>
-        )}
+          </<div className="flex items-center gap-2">
+  <a
+    href="/auth"
+    className="rounded-lg border border-white/20 px-4 py-2 text-sm font-semibold hover:bg-white/10"
+  >
+    Login / Sign Up
+  </a>
+</div>    )}
+
       </header>
 
       {/* HERO */}
