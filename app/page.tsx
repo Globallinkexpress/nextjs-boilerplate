@@ -432,6 +432,12 @@ Thank you.`;
               >
                 Explore Gifts →
               </button>
+<a
+  href="/auth"
+  className="rounded-xl border border-white/15 bg-white/5 px-6 py-4 font-bold backdrop-blur transition hover:bg-white/10"
+>
+  Login / Sign Up
+</a>
 
               <button
                 onClick={() =>
