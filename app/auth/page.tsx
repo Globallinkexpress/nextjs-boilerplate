@@ -1,5 +1,7 @@
 "use client";
+
 import { FormEvent, useState } from "react";
+
 export default function AuthPage() {
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [fullName, setFullName] = useState("");
@@ -7,70 +9,54 @@ export default function AuthPage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
     setMessage("");
+
     try {
-      const url = process.env.nextpublicsupabaseUrl;
-      const key = process.env.nextpublishablekey;
-      if (!url || !key) {
-        throw new Error("Supabase is not configured.");
-      }
-      const endpoint =
-        mode === "signup"
-          ? `${url}/auth/v1/signup`
-          : `${url}/auth/v1/token?grant_type=password`;
-      const body =
-        mode === "signup"
-          ? {
-              email: email.trim(),
-              password,
-              data: {
-                full_name: fullName.trim(),
-              },
-            }
-          : {
-              email: email.trim(),
-              password,
-            };
-      const response = await fetch(endpoint, {
+      const response = await fetch("/api/auth", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          apikey: key,
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          action: mode,
+          fullName,
+          email,
+          password,
+        }),
       });
+
       const result = await response.json();
+
       if (!response.ok) {
-        throw new Error(
-          result.error_description ||
-            result.msg ||
-            result.message ||
-            "Unable to complete the request."
-        );
+        throw new Error(result.error || "Authentication failed.");
       }
+
+      setMessage(
+        mode === "signup"
+          ? "Account created successfully. Check your email if verification is required."
+          : "Login successful."
+      );
+
       if (mode === "signup") {
-        setMessage(
-          "Account created successfully. Check your email if verification is required."
-        );
         setFullName("");
         setEmail("");
         setPassword("");
-      } else {
-        setMessage("Login successful.");
       }
     } catch (error) {
       setMessage(
         error instanceof Error
           ? error.message
-          : "Something went wrong. Please try again."
+          : "Something went wrong."
       );
     } finally {
       setLoading(false);
     }
   }
+
   return (
     <main
       style={{
@@ -94,12 +80,16 @@ export default function AuthPage() {
           border: "1px solid rgba(255,255,255,.12)",
         }}
       >
-        <h1 style={{ fontSize: "30px", marginBottom: "8px" }}>
-          {mode === "signup" ? "Create your account" : "Welcome back"}
+        <h1>
+          {mode === "signup"
+            ? "Create your account"
+            : "Welcome back"}
         </h1>
-        <p style={{ opacity: 0.7, marginBottom: "24px" }}>
+
+        <p style={{ opacity: 0.7 }}>
           Global Link Express
         </p>
+
         <form onSubmit={handleSubmit}>
           {mode === "signup" && (
             <input
@@ -111,6 +101,7 @@ export default function AuthPage() {
               style={inputStyle}
             />
           )}
+
           <input
             type="email"
             placeholder="Email address"
@@ -119,6 +110,7 @@ export default function AuthPage() {
             required
             style={inputStyle}
           />
+
           <input
             type="password"
             placeholder="Password"
@@ -128,7 +120,12 @@ export default function AuthPage() {
             minLength={6}
             style={inputStyle}
           />
-          <button type="submit" disabled={loading} style={buttonStyle}>
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={buttonStyle}
+          >
             {loading
               ? "Please wait..."
               : mode === "signup"
@@ -136,9 +133,13 @@ export default function AuthPage() {
               : "Login"}
           </button>
         </form>
+
         {message && (
-          <p style={{ marginTop: "18px", lineHeight: 1.5 }}>{message}</p>
+          <p style={{ marginTop: "18px" }}>
+            {message}
+          </p>
         )}
+
         <button
           type="button"
           onClick={() => {
@@ -155,6 +156,7 @@ export default function AuthPage() {
     </main>
   );
 }
+
 const inputStyle = {
   width: "100%",
   boxSizing: "border-box" as const,
@@ -166,6 +168,7 @@ const inputStyle = {
   color: "#fff",
   fontSize: "16px",
 };
+
 const buttonStyle = {
   width: "100%",
   padding: "15px",
@@ -176,6 +179,7 @@ const buttonStyle = {
   fontSize: "16px",
   fontWeight: "600",
 };
+
 const switchButtonStyle = {
   width: "100%",
   marginTop: "20px",
